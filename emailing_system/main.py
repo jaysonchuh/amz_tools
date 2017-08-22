@@ -6,6 +6,7 @@ import argparse
 import ConfigParser
 import datetime
 import time
+import json
 import logging
 import schedule
 
@@ -21,6 +22,7 @@ def get_last_day_orders(config):
         account_id = config.get('mws_setting', 'account_id')
         access_key = config.get('mws_setting', 'access_key')
         secret_key = config.get('mws_setting', 'secret_key')
+        mws_marketplaceids = json.loads(config.get('mws_setting', 'marketplaceids'))
     except:
         logging.getLogger().exception("Configuration error")
         sys.exit(1)
@@ -30,7 +32,7 @@ def get_last_day_orders(config):
     start_date = end_date - datetime.timedelta(days=1)
 
     orders = order.fetch_fba_orders_report(account_id, access_key,
-            secret_key, start_date, end_date)
+            secret_key, start_date, end_date, mws_marketplaceids)
     return start_date, orders
 
 

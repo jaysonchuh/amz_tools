@@ -11,7 +11,7 @@ import ConfigParser
 import argparse
 
 def fetch_fba_orders_report(account_id, access_key, secret_key,
-        start_date, end_date):
+        start_date, end_date, marketplaceids=('ATVPDKIKX0DER',)):
     """Fetch orders report within certain timerange (UTC time standard)"""
     orders = []
 
@@ -23,7 +23,7 @@ def fetch_fba_orders_report(account_id, access_key, secret_key,
 
         # request the order report using MWS API
         response = reports_api.request_report(report_type,
-                start_date.isoformat(), end_date.isoformat())
+                start_date.isoformat(), end_date.isoformat(), marketplaceids)
         response.response.raise_for_status()
         report_request_id = response.parsed['ReportRequestInfo']['ReportRequestId']['value']
 
@@ -77,6 +77,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Fetch orders report using MWS API')
     parser.add_argument('--range', nargs=2,
             help="Time range of orders report")
+    parser.add_argument('--marketplaceids', nargs='*',
+            default=['ATVPDKIKX0DER'], help="Marketplace IDs")
     parser.add_argument('config_file', metavar='CONFIG_FILE')
     args = parser.parse_args()
 
@@ -111,6 +113,6 @@ if __name__ == "__main__":
             end_date = end
 
     orders = fetch_fba_orders_report(account_id, access_key,
-            secret_key, start_date, end_date)
+            secret_key, start_date, end_date, args.marketplaceids)
 
     for order in orders: print order
