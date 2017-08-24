@@ -96,13 +96,9 @@ def check_for_asshole_seller(args, config ):
                 driver.get(product_page)
 
                 # wait for loading
-                try:
-                    WebDriverWait(driver, args.delay).until(
-                            EC.presence_of_all_elements_located(
-                                (By.ID, 'merchant-info')))
-                except TimeoutException:
-                    driver.close()
-                    sys.exit("Loading took too much time.")
+                WebDriverWait(driver, args.delay).until(
+                        EC.presence_of_all_elements_located(
+                            (By.ID, 'merchant-info')))
 
                 element = driver.find_element_by_id("merchant-info")
 
@@ -120,6 +116,8 @@ def check_for_asshole_seller(args, config ):
 
                 logging.getLogger().info("Done: Product_Name = {0}, Product_Page= {1}".format(product_name,
                     product_page))
+            except TimeoutException:
+                logging.getLogger().exception("Loading took too much time.")
             except:
                 logging.getLogger().exception("Product_Name = {0}, Product_Page= {1}".format(product_name,
                     product_page))

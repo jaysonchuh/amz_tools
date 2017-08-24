@@ -5,18 +5,19 @@ import mws
 import setting
 import logging
 import time
+import json
 import datetime
 import dateutil.parser
 import ConfigParser
 import argparse
 
 def fetch_fba_orders_report(account_id, access_key, secret_key,
-        start_date, end_date, marketplaceids=('ATVPDKIKX0DER',)):
+        start_date, end_date, region='US', marketplaceids=('ATVPDKIKX0DER',)):
     """Fetch orders report within certain timerange (UTC time standard)"""
     orders = []
 
     try:
-        reports_api = mws.Reports(access_key, secret_key, account_id)
+        reports_api = mws.Reports(access_key, secret_key, account_id, region)
         report_type = '_GET_AMAZON_FULFILLED_SHIPMENTS_DATA_'
 
         logging.getLogger().info("RequestReport: report_type = {0}, start_date = {1}, end_date = {2}".format(report_type, start_date.isoformat(), end_date.isoformat()))
@@ -77,8 +78,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Fetch orders report using MWS API')
     parser.add_argument('--range', nargs=2,
             help="Time range of orders report")
-    parser.add_argument('--marketplaceids', nargs='*',
-            default=['ATVPDKIKX0DER'], help="Marketplace IDs")
     parser.add_argument('config_file', metavar='CONFIG_FILE')
     args = parser.parse_args()
 
@@ -93,6 +92,8 @@ if __name__ == "__main__":
         account_id = config.get('mws_setting', 'account_id')
         access_key = config.get('mws_setting', 'access_key')
         secret_key = config.get('mws_setting', 'secret_key')
+        region = config.get('mws_setting', 'region')
+        mws_marketplaceids = json.loads(config.get('mws_setting', 'marketplaceids'))
     except:
         logging.getLogger().exception("Configuration error")
         sys.exit(1)
@@ -113,6 +114,6 @@ if __name__ == "__main__":
             end_date = end
 
     orders = fetch_fba_orders_report(account_id, access_key,
-            secret_key, start_date, end_date, args.marketplaceids)
+            secret_key, start_date, end_date, region, mws_marketplaceids)
 
     for order in orders: print order
