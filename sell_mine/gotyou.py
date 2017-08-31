@@ -107,12 +107,17 @@ def check_for_asshole_seller(args, config ):
                 if match:
                     seller_name = match.group('seller_name')
                     last_seller = last_invalid_seller.get(product_page, '')
-                    if seller_name != authentic_seller and seller_name != last_seller:
-                        driver.save_screenshot('./{0}_{1}.png'.format(seller_name, int(time.time())))
-                        email_content = content_template.format(product_name=product_name, product_page=product_page,
-                                asshole_name=seller_name)
-                        sender.send_email(recipients_email_address, email_subject, email_content)
-                        last_invalid_seller[product_page] = seller_name
+
+                    # not the authentic seller
+                    if seller_name != authentic_seller:
+                        if seller_name != last_seller:
+                            driver.save_screenshot('./{0}_{1}.png'.format(seller_name, int(time.time())))
+                            email_content = content_template.format(product_name=product_name, product_page=product_page,
+                                    asshole_name=seller_name)
+                            sender.send_email(recipients_email_address, email_subject, email_content)
+                            last_invalid_seller[product_page] = seller_name
+                    else:
+                        last_invalid_seller[product_page] = ''
 
                 logging.getLogger().info("Done: Product_Name = {0}, Product_Page= {1}".format(product_name,
                     product_page))
